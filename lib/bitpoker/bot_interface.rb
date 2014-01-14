@@ -17,7 +17,7 @@ module BitPoker
          raise NotImplementedError
       end
 
-      def agree_one( opponent_stake )
+      def agree_one( stake_to_call )
          raise NotImplementedError
       end
 
@@ -25,7 +25,7 @@ module BitPoker
          raise NotImplementedError
       end
 
-      def agree_two( opponent_stake )
+      def agree_two( stake_to_call )
          raise NotImplementedError
       end
 
