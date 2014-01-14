@@ -1,1 +1,4 @@
 bot
+.lock
+.DS_Store
+*.gem
