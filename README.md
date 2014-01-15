@@ -1,6 +1,6 @@
 # BitPoker
 
-Ruby implementation of [BitPoker]("http://bitpoker.sfi.org.pl/tutorial/pokaz/4") (polish readers only) game.
+Ruby implementation of [BitPoker](http://bitpoker.sfi.org.pl/tutorial/pokaz/4) (polish readers only) game.
 
 ## Idea
 
@@ -27,7 +27,7 @@ It is important for a bot to respect duel rules, otherwise the bot will be disqu
 
 ##How to start?
 
-Before any action is taken, use [Bundler]("http://bundler.io/") to make sure your ruby environment is ready to play BitPoker.
+Before any action is taken, use [Bundler](http://bundler.io/) to make sure your ruby environment is ready to play BitPoker.
 
 ```
 gem update --system; gem install bundler # If you don't have Bundler installed

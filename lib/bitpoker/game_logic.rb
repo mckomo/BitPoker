@@ -38,7 +38,7 @@ module BitPoker
       def perform_rules_introduction( round )
          
          # Inform bots about rules
-         parallel_call( round.bots, :introduce, [bot_rules] )
+         parallel_call( round.bots, :introduce, [round_rules] )
          # Change round.state to first round of betting
          round.state = Round::STATE_CARD_DEAL
 

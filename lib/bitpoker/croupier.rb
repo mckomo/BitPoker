@@ -25,11 +25,11 @@ module BitPoker
                 bot.trigger( action, args )
             end
          rescue Timeout::Error
-            raise BitPoker::BotError bot, "Bot exceeded timeout"
+            raise BitPoker::BotError.new(  bot, "Bot exceeded timeout" )
          rescue NotImplementedError
-            raise BitPoker::BotError bot, "Bot does not implement '#{action}' action"
+            raise BitPoker::BotError.new(  bot, "Bot does not implement '#{action}' action" )
          rescue => e
-            raise BitPoker::BotError bot, "Bot failed during '#{action}' action execution. Error: #{e}"
+            raise BitPoker::BotError.new(  bot, "Bot failed during '#{action}' action execution." )
          end
          
          # Validate response if yield given
@@ -66,7 +66,7 @@ module BitPoker
       #
       #
       #
-      def bot_rules
+      def round_rules
          {
             "min_card"  => @rules[:card_range].min,
             "max_card"  => @rules[:card_range].max,

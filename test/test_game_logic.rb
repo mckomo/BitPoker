@@ -53,12 +53,10 @@ class TestGameLogic < Test::Unit::TestCase
       
       should "be able to perform first betting step when bets are not equal" do
          
-         stakes = [ @croupier.rules[:min_stake], @croupier.rules[:max_stake] ]
-                  
          @round.state = Round::STATE_FIRST_BETTING
          
-         @proxy_one.stubs( :trigger ).with( :bet_one, stakes ).returns( 15 )
-         @proxy_two.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
+         @proxy_one.stubs( :trigger ).with( :bet_one, @croupier.rules[:min_stake] ).returns( 15 )
+         @proxy_two.stubs( :trigger ).with( :bet_one, @croupier.rules[:min_stake] ).returns( 25 )
          
          @croupier.perform_next_step( @round )
          
@@ -69,11 +67,10 @@ class TestGameLogic < Test::Unit::TestCase
       
       should "be able to perform first betting step when bets are equal" do
          
-         stakes = [ @croupier.rules[:min_stake], @croupier.rules[:max_stake] ]
          @round.state = Round::STATE_FIRST_BETTING
          
-         @proxy_one.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
-         @proxy_two.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
+         @proxy_one.stubs( :trigger ).with( :bet_one, @croupier.rules[:min_stake] ).returns( 25 )
+         @proxy_two.stubs( :trigger ).with( :bet_one, @croupier.rules[:min_stake] ).returns( 25 )
          
          @croupier.perform_next_step( @round )
          
@@ -153,13 +150,13 @@ class TestGameLogic < Test::Unit::TestCase
       
       should "be able to perform second betting step when bets are equal" do
          
-         stakes = [50, @croupier.rules[:max_stake]]
+         @round.bets = [25, 25]
          
          @round.state = Round::STATE_SECOND_BETTING
          @round.bets = [50, 50]
          
-         @proxy_one.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
-         @proxy_two.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
+         @proxy_one.stubs( :trigger ).with( :bet_two, @round.stake ).returns( 100 )
+         @proxy_two.stubs( :trigger ).with( :bet_two, @round.stake ).returns( 100 )
          
          @croupier.perform_next_step( @round )
          
@@ -170,14 +167,12 @@ class TestGameLogic < Test::Unit::TestCase
       end
       
       should "be able to perform second betting step when bets are not equal" do
-         
-         stakes = [50, @croupier.rules[:max_stake]]
-         
+                  
          @round.state = Round::STATE_SECOND_BETTING
          @round.bets = [50, 50]
          
-         @proxy_one.stubs( :trigger ).with( :bet_two, stakes ).returns( 75 )
-         @proxy_two.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
+         @proxy_one.stubs( :trigger ).with( :bet_two, @round.stake ).returns( 75 )
+         @proxy_two.stubs( :trigger ).with( :bet_two, @round.stake ).returns( 100 )
          
          @croupier.perform_next_step( @round )
          
@@ -263,8 +258,8 @@ class TestGameLogic < Test::Unit::TestCase
          @round.state = Round::STATE_POINTS_DISTRIBUTION
          @round.score = [-100, 100]
          
-         @proxy_one.stubs( :trigger ).with( :end_of_duel, -100 ).returns( -100 )
-         @proxy_two.stubs( :trigger ).with( :end_of_duel, 100 ).returns( 100 )
+         @proxy_one.stubs( :trigger ).with( :end_of_round, -100 ).returns( -100 )
+         @proxy_two.stubs( :trigger ).with( :end_of_round, 100 ).returns( 100 )
          
          @croupier.perform_next_step( @round )
          

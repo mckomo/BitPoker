@@ -36,7 +36,7 @@ class TestCroupier < Test::Unit::TestCase
          
       end
       
-      should "have introductory rules for bot" do
+      should "be able to share round rules" do
          
          custom_rules = {
             rounds:     100,
@@ -48,14 +48,14 @@ class TestCroupier < Test::Unit::TestCase
          
          croupier = Croupier.new( custom_rules )
          
-         bot_rules = {
+         round_rules = {
             "min_card"  =>  5,
             "max_card"  =>  10,
             "max_stake" =>  1000,
             "timeout"   =>  100
          }
          
-         assert_equal bot_rules, croupier.bot_rules
+         assert_equal round_rules, croupier.round_rules
          
       end
       

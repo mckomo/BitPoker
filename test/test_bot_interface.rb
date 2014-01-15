@@ -15,7 +15,11 @@ class TestBot < Test::Unit::TestCase
       end
       
       should "force to implement all required methods" do
-
+         
+         assert_raise ArgumentError do 
+            @interface.introduce
+         end
+         
          assert_raise ArgumentError do 
             @interface.get_card
          end
