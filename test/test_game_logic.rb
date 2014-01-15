@@ -3,7 +3,7 @@ require 'shoulda'
 require "mocha/setup"
 
 require "./lib/bitpoker"
-require_relative 'support/implemented_bot'
+require_relative 'support/glass_bot'
 
 class TestGameLogic < Test::Unit::TestCase
    
@@ -12,10 +12,28 @@ class TestGameLogic < Test::Unit::TestCase
    context "a croupier that fallows game logic" do
       
       setup do
-         @bot_one = BotProxy.new( BotInterface.new )
-         @bot_two = BotProxy.new( BotInterface.new )
-         @round = Round.new( [@bot_one, @bot_two] )
+         @bot_one = GlassBot.new
+         @bot_two = GlassBot.new
+         @proxy_one = BotProxy.new( @bot_one )
+         @proxy_two = BotProxy.new( @bot_two )
+         @round = Round.new( [@proxy_one, @proxy_two] )
          @croupier = Croupier.new
+      end
+      
+      should "be able to perform rules introduction step" do
+         
+         @round.state = Round::STATE_RULES_INTRODUCTION
+                  
+         @croupier.perform_next_step( @round )
+         
+         # Test that all required rules are passed to bot
+         assert_equal @croupier.rules[:card_range].min, @bot_one.min_card 
+         assert_equal @croupier.rules[:card_range].max, @bot_one.max_card
+         assert_equal @croupier.rules[:max_stake], @bot_one.max_stake
+         assert_equal @croupier.rules[:timeout], @bot_one.timeout
+         
+         assert_equal Round::STATE_CARD_DEAL, @round.state
+         
       end
       
       should "be able to perform card deal step" do
@@ -23,8 +41,8 @@ class TestGameLogic < Test::Unit::TestCase
          @round.state = Round::STATE_CARD_DEAL
          
          @croupier.stubs( deal_cards: [4, 0] )
-         @bot_one.stubs( :trigger ).with( :get_card, 4 ).returns( 4 )
-         @bot_two.stubs( :trigger ).with( :get_card, 0 ).returns( 0 )
+         @proxy_one.stubs( :trigger ).with( :get_card, 4 ).returns( 4 )
+         @proxy_two.stubs( :trigger ).with( :get_card, 0 ).returns( 0 )
          
          @croupier.perform_next_step( @round )
          
@@ -39,8 +57,8 @@ class TestGameLogic < Test::Unit::TestCase
                   
          @round.state = Round::STATE_FIRST_BETTING
          
-         @bot_one.stubs( :trigger ).with( :bet_one, stakes ).returns( 15 )
-         @bot_two.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
+         @proxy_one.stubs( :trigger ).with( :bet_one, stakes ).returns( 15 )
+         @proxy_two.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
          
          @croupier.perform_next_step( @round )
          
@@ -54,8 +72,8 @@ class TestGameLogic < Test::Unit::TestCase
          stakes = [ @croupier.rules[:min_stake], @croupier.rules[:max_stake] ]
          @round.state = Round::STATE_FIRST_BETTING
          
-         @bot_one.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
-         @bot_two.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
+         @proxy_one.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
+         @proxy_two.stubs( :trigger ).with( :bet_one, stakes ).returns( 25 )
          
          @croupier.perform_next_step( @round )
          
@@ -68,10 +86,10 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform first call step when bot calls the stake" do
          
          @round.state = Round::STATE_FIRST_CALL
-         @round.bets = [15, 25] # Now, bot_one is lower bidder
+         @round.bets = [15, 25] # Now, proxy_one is lower bidder
          assert_equal 25, @round.stake 
          
-         @bot_one.stubs( :trigger ).with( :agree_one, 25 ).returns( true )
+         @proxy_one.stubs( :trigger ).with( :agree_one, 25 ).returns( true )
          
          @croupier.perform_next_step( @round )
          
@@ -83,10 +101,10 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform first call step when bot does not call the stake" do
          
          @round.state = Round::STATE_FIRST_CALL
-         @round.bets = [15, 25] # Now, bot_one is lower bidder 
+         @round.bets = [15, 25] # Now, proxy_one is lower bidder 
          assert_equal 25, @round.stake
          
-         @bot_one.stubs( :trigger ).with( :agree_one, 25 ).returns( false )
+         @proxy_one.stubs( :trigger ).with( :agree_one, 25 ).returns( false )
          
          @croupier.perform_next_step( @round )
          
@@ -98,7 +116,7 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform first called step" do
          
          @round.state = Round::STATE_FIRST_CALLED
-         @round.bets = [15, 25] # Now, bot_one is lower bidder
+         @round.bets = [15, 25] # Now, proxy_one is lower bidder
          
          @croupier.perform_next_step( @round )
          
@@ -111,7 +129,7 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform folded step" do
          
          @round.state = Round::STATE_FOLDED
-         @round.bets = [15, 25] # Now, bot_one is folding player
+         @round.bets = [15, 25] # Now, proxy_one is folding player
          
          @croupier.perform_next_step( @round )
          
@@ -140,8 +158,8 @@ class TestGameLogic < Test::Unit::TestCase
          @round.state = Round::STATE_SECOND_BETTING
          @round.bets = [50, 50]
          
-         @bot_one.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
-         @bot_two.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
+         @proxy_one.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
+         @proxy_two.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
          
          @croupier.perform_next_step( @round )
          
@@ -158,8 +176,8 @@ class TestGameLogic < Test::Unit::TestCase
          @round.state = Round::STATE_SECOND_BETTING
          @round.bets = [50, 50]
          
-         @bot_one.stubs( :trigger ).with( :bet_two, stakes ).returns( 75 )
-         @bot_two.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
+         @proxy_one.stubs( :trigger ).with( :bet_two, stakes ).returns( 75 )
+         @proxy_two.stubs( :trigger ).with( :bet_two, stakes ).returns( 100 )
          
          @croupier.perform_next_step( @round )
          
@@ -171,9 +189,9 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform second call step when bot calls the stake" do
          
          @round.state = Round::STATE_SECOND_CALL
-         @round.bets = [75, 100] # Now, bot_one is lower bidder 
+         @round.bets = [75, 100] # Now, proxy_one is lower bidder 
          
-         @bot_one.stubs( :trigger ).with( :agree_two, 100 ).returns( true )
+         @proxy_one.stubs( :trigger ).with( :agree_two, 100 ).returns( true )
          
          @croupier.perform_next_step( @round )
          
@@ -185,9 +203,9 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform second call step when bot does not call the stake" do
          
          @round.state = Round::STATE_SECOND_CALL
-         @round.bets = [75, 100] # Now, bot_one is lower bidder 
+         @round.bets = [75, 100] # Now, proxy_one is lower bidder 
          
-         @bot_one.stubs( :trigger ).with( :agree_two, 100 ).returns( false )
+         @proxy_one.stubs( :trigger ).with( :agree_two, 100 ).returns( false )
          
          @croupier.perform_next_step( @round )
          
@@ -199,7 +217,7 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform second called step" do
          
          @round.state = Round::STATE_SECOND_CALLED
-         @round.bets = [75, 100] # Now, bot_one is lower bidder 
+         @round.bets = [75, 100] # Now, proxy_one is lower bidder 
          
          @croupier.perform_next_step( @round )
          
@@ -234,8 +252,8 @@ class TestGameLogic < Test::Unit::TestCase
          
          assert @round.bets_even?
          assert ! @round.draw?
-         assert_equal 200, @round.pot
-         assert_equal [-100, 200], @round.score
+         assert_equal 100, @round.stake
+         assert_equal [-100, 100], @round.score
          assert_equal Round::STATE_POINTS_DISTRIBUTION, @round.state
          
       end
@@ -243,10 +261,10 @@ class TestGameLogic < Test::Unit::TestCase
       should "be able to perform points distribution step" do
          
          @round.state = Round::STATE_POINTS_DISTRIBUTION
-         @round.score = [-100, 200]
+         @round.score = [-100, 100]
          
-         @bot_one.stubs( :trigger ).with( :end_of_round, -100 ).returns( -100 )
-         @bot_two.stubs( :trigger ).with( :end_of_round, 200 ).returns( 200 )
+         @proxy_one.stubs( :trigger ).with( :end_of_duel, -100 ).returns( -100 )
+         @proxy_two.stubs( :trigger ).with( :end_of_duel, 100 ).returns( 100 )
          
          @croupier.perform_next_step( @round )
          

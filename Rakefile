@@ -25,10 +25,13 @@ namespace :bitpoker do
       # Init new duel
       duel = BitPoker::Duel.new( croupier, proxy_one, proxy_two )
       
-      until duel.finished? do
-         duel.play_round
+      begin
+         until duel.finished? do
+            duel.play_round
+         end
+      rescue BitPoker::BotError => e
+         puts "Bot #{e.bot.trigger(:name)} is disqualified. Reason: \"#{e.message}\"."
       end
-      
       p duel.total_score
       
    end

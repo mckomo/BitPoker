@@ -10,9 +10,12 @@ require_relative 'bitpoker/croupier'
 require_relative 'bitpoker/duel'
 require_relative 'bitpoker/round'
 
+# Great game of the BitPoker
+#
+# @author Mckomo
 module BitPoker
    
-   VERSION = 0.1
+   VERSION = "0.1.1"
    
    # Load bot from file
    #
@@ -43,8 +46,16 @@ module BitPoker
       
    end
    
-   
-   class BotError < StandardError
+   # Exception raised when a bot breaks rules of the BitPoker
+   class BotError < RuntimeError
+      
+      attr_reader :bot
+      
+      def initialize( bot, message = "" )
+         super( message )
+         @bot = bot
+      end
+      
    end
    
 end

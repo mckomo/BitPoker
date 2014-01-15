@@ -5,6 +5,8 @@ module BitPoker
       def perform_next_step( round )
          
          case round.state
+         when Round::STATE_RULES_INTRODUCTION
+            perform_rules_introduction( round )
          when Round::STATE_CARD_DEAL
             perform_card_deal( round )
          when Round::STATE_FIRST_BETTING
@@ -33,6 +35,15 @@ module BitPoker
       
       private
       
+      def perform_rules_introduction( round )
+         
+         # Inform bots about rules
+         parallel_call( round.bots, :introduce, [bot_rules] )
+         # Change round.state to first round of betting
+         round.state = Round::STATE_CARD_DEAL
+
+      end
+      
       def perform_card_deal( round )
          
          # Set random cards
@@ -50,7 +61,7 @@ module BitPoker
          max_stake = @rules[:max_stake]
          
          # Ask bots for bets
-         round.bets = parallel_call( round.bots, :bet_one, [min_stake, max_stake] ) do |bet|
+         round.bets = parallel_call( round.bots, :bet_one, min_stake ) do |bet|
             ( min_stake .. max_stake ).include?( bet )
          end
                   
@@ -99,7 +110,7 @@ module BitPoker
          end
          
          # Ask bots for bets
-         round.bets = parallel_call( round.bots, :bet_two, [min_stake, max_stake] ) do |bet|
+         round.bets = parallel_call( round.bots, :bet_two, min_stake ) do |bet|
             ( min_stake .. max_stake ).include?( bet )
          end
          
@@ -152,7 +163,7 @@ module BitPoker
          
          # Set score unless it is a draw
          unless round.draw?
-            round.score[round.winner_index] += round.pot
+            round.score[round.winner_index] += round.stake
             round.score[round.loser_index] -= round.stake 
          end
             

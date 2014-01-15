@@ -2,13 +2,18 @@ module BitPoker
    
    # Basic element of the BitPoker game 
    # - poker duel between two bots
+   # 
+   # @author Mckomo
    class Duel
                
       attr_reader :options, :total_score
       
-      # Const
+      # Constructor of a duel object
       #
-      # 
+      # @parma    [Croupier]           croupier Croupier that will perform duel
+      # @param    [BotProxyInterface]  bot_one  First bot to participate the duel
+      # @param    [BotProxyInterface]  bot_two  Second bot to participate the duel
+      # @return   [Duel]
       def initialize( croupier, bot_one, bot_two )
          
          # Check if interfaces are implemented
@@ -28,7 +33,9 @@ module BitPoker
          
       end
 
-      # Play one round of BitPoker
+      # Play one round of the BitPoker
+      #
+      # @return [Duel]
       def play_round
 
          # Don't perform deal if a game is finished
@@ -47,12 +54,14 @@ module BitPoker
          # Update total score
          @total_score[0] += round.score[0]
          @total_score[1] += round.score[1]
+         
+         self
 
       end
       
+      # Return state of the duel
       #
-      #
-      # @ return
+      # @return   [Mixed]  True of false
       def finished?
          @round_counter >= @croupier.rules[:rounds]
       end

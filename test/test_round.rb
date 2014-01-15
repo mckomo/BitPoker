@@ -13,8 +13,8 @@ class TestRound < Test::Unit::TestCase
          @round = Round.new( [@bot, @bot])
       end
       
-      should "start with card deal" do
-         assert_equal Round::STATE_CARD_DEAL, @round.state 
+      should "start with rules introduction" do
+         assert_equal Round::STATE_RULES_INTRODUCTION, @round.state 
       end
       
       should "know a winner index" do
@@ -91,12 +91,6 @@ class TestRound < Test::Unit::TestCase
          @round.bets = [5,10]
          assert_equal 10, @round.stake
       end
-      
-      should "know a pot" do
-         @round.bets = [6,9]
-         assert_equal 15, @round.pot
-      end
-      
       
    end
    

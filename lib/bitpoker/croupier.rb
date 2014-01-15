@@ -10,8 +10,8 @@ module BitPoker
       
       include GameLogic
       
-      def initialize( rules = {} )
-         @rules = setup( rules )
+      def initialize( custom_rules = {} )
+         setup_with( custom_rules )
          @prng = Random.new
       end
       
@@ -25,16 +25,16 @@ module BitPoker
                 bot.trigger( action, args )
             end
          rescue Timeout::Error
-            raise BitPoker::BotError, "Bot exceeded timeout."
+            raise BitPoker::BotError bot, "Bot exceeded timeout"
          rescue NotImplementedError
-            raise BitPoker::BotError, "Bot does not implement '#{action}' action."
+            raise BitPoker::BotError bot, "Bot does not implement '#{action}' action"
          rescue => e
-            raise BitPoker::BotError, "Bot failed during '#{action}' action execution. Error: #{e}."
+            raise BitPoker::BotError bot, "Bot failed during '#{action}' action execution. Error: #{e}"
          end
          
          # Validate response if yield given
          if block_given?
-            raise BitPoker::BotError, "Bot response '#{bot_response}' after '#{action} request is invalid." unless yield( bot_response )
+            raise BitPoker::BotError.new( bot, "Bot response '#{bot_response}' after '#{action}' action is invalid" ) unless yield( bot_response )
          end
          
          bot_response
@@ -63,12 +63,28 @@ module BitPoker
          
       end
       
+      #
+      #
+      #
+      def bot_rules
+         {
+            "min_card"  => @rules[:card_range].min,
+            "max_card"  => @rules[:card_range].max,
+            "max_stake" => @rules[:max_stake],
+            "timeout"   => @rules[:timeout]
+         }
+      end
+      
       def deal_cards
          [ @prng.rand( Rules::CARD_RANGE ), @prng.rand( Rules::CARD_RANGE ) ]
       end
       
-      def setup( rules )
-         {
+      def rules=( custom_rules )
+         setup( custom_rules )
+      end
+      
+      def setup_with( rules )
+         @rules = {
              rounds:       rules[:rounds]     || Rules::ROUNDS,
              min_stake:    rules[:min_stake]  || Rules::MIN_STAKE,
              max_stake:    rules[:max_stake]  || Rules::MAX_STAKE,

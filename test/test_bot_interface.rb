@@ -45,7 +45,7 @@ class TestBot < Test::Unit::TestCase
          end
          
          assert_raise ArgumentError do 
-            @interface.end_of_game
+            @interface.end_of_duel
          end
          
       end

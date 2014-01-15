@@ -30,10 +30,32 @@ class TestCroupier < Test::Unit::TestCase
             timeout:    100,
             card_range: 5..10
          }
-         
          croupier = Croupier.new( custom_rules )
          
          assert_equal custom_rules, croupier.rules
+         
+      end
+      
+      should "have introductory rules for bot" do
+         
+         custom_rules = {
+            rounds:     100,
+            min_stake:  100,
+            max_stake:  1000,
+            timeout:    100,
+            card_range: 5..10
+         }
+         
+         croupier = Croupier.new( custom_rules )
+         
+         bot_rules = {
+            "min_card"  =>  5,
+            "max_card"  =>  10,
+            "max_stake" =>  1000,
+            "timeout"   =>  100
+         }
+         
+         assert_equal bot_rules, croupier.bot_rules
          
       end
       
