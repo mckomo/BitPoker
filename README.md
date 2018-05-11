@@ -8,7 +8,7 @@ Ruby implementation of [BitPoker](http://bitpoker.sfi.org.pl/tutorial/pokaz/4) (
 
 **For devs**: create an bot that will beat the crap out of opponents.
 
-##Rules of game
+## Rules of game
 
 In a BitPoker duel participate two bots. Duel has `1000` rounds. Each round consists of following steps.
 
