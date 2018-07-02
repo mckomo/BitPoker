@@ -25,7 +25,7 @@ It is important for a bot to respect duel rules, otherwise the bot will be disqu
 
 **NOTE:** All of highlighted values are fully customizable. Take a peak at `BitPoker::Croupier#setup` method. Also they can be altered during duel (not recommenced so far), so each round can be different. 
 
-##How to start?
+## How to start?
 
 Before any action is taken, use [Bundler](http://bundler.io/) to make sure your ruby environment is ready to play BitPoker.
 
@@ -46,5 +46,7 @@ When duel is over, you should see result of the duel.
 [45795, -45795]
 ```
 Now you are ready to fight your friends bots!
-##TCPoker
+
+## TCPoker
+
 Main reason of creating BitPoker is to create solid foundation for TCPoker - BitPoker over TCP. More to come very soon.
