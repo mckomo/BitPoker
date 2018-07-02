@@ -1,13 +1,16 @@
-source "https://rubygems.org"
-ruby "2.1.0"
+# frozen_string_literal: true
 
-gem "parallel", "~> 0.9.2"
+source 'https://rubygems.org'
+
+ruby '>= 2.3.0'
+
+gem 'parallel', '~> 1.11'
 
 group :develop do
-   gem "yard", "~> 0.8.7.3"
+  gem 'yard', '~> 0.9.11'
 end
 
 group :test do
-  gem "shoulda", "~> 3.5.0"
-  gem "mocha", "~> 1.0.0"
+  gem 'mocha', '~> 1.5.0'
+  gem 'shoulda', '~> 3.5.0'
 end
